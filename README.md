@@ -1,39 +1,31 @@
-# tinyufont
+# TinyUFont
 
-(プログラムの概要説明)
+TinyUFont is a font/text package for TinyGo displays.  
+
+## VS. github.com/tinygo-org/tinyfont
+
+* TinyGo font files can be created from BDF fonts (tinyufontgen)
+* Unicode font support
+  * Tested with jisx0208 (Japanese) font only
+* Usage is the same as tinygo-org/tinyfont
 
 ## Description
 
-(プログラムの動作説明)
-
-## Demo
-
-(gifアニメ等でのDemo)
-
-## Requirement
-
-(動作環境)
+Generate a font file using `tinyufontgen` described later.  
+Codepoints <= 255 are always included in the font.  
+For fonts with a code point of 256 or more, only those specified by the argument are included in the font.  
 
 ## Usage
 
-(使用方法)
+    // https://mplus-fonts.osdn.jp/mplus-bitmap-fonts/download/index.html
+    tinyufontgen --ascii-font mplus_j10b-iso.bdf --font mplus_j10r.bdf --output font.go 日本語
+
+    // http://x-tt.osdn.jp/ayu.html
+    tinyufontgen --ascii-font 10x20grkm.bdf --font k20gm.bdf --output font.go 日本語
 
 ## Installation
 
-(インストール方法)
-
-## Build
-
-ソースコードは、 `%GOPATH%/src/github.com/sago35/tinyufont/main.go` となるように配置してください。  
-
-`go run dist/make_dist.go VERSION` を実行すると、 ./dist/release 以下にファイルが作成されます。  
-release用にBuildする際は、Changes.mdに該当Versionの記載が必要です。  
-
-    (例) release用にv1.2.3でbuild
-    $ go run dist/make_dist.go 1.2.3
-
-    (例) 開発用にv1.2.3でbuild
-    $ go run dist/make_dist.go 1.2.3 --dev
+    go get github.com/sago35/tinyufont/cmd/tinyufontgen
 
 ### Environment
 
@@ -42,7 +34,7 @@ release用にBuildする際は、Changes.mdに該当Versionの記載が必要で
 
 ## Notice
 
-(注意)
+None.
 
 ## License
 
