@@ -1,6 +1,7 @@
 package tinyufont
 
 import (
+	"fmt"
 	"image/color"
 
 	"tinygo.org/x/drivers"
@@ -30,7 +31,7 @@ type RuneToIndex struct {
 }
 
 type Font struct {
-	UGlyphs     []Glyph
+	Glyphs      []Glyph
 	RuneToIndex []RuneToIndex
 	YAdvance    uint8
 }
@@ -42,15 +43,10 @@ func DrawChar(display drivers.Displayer, font *Font, x int16, y int16, char rune
 
 // DrawCharRotated sets a single char in the buffer of the display
 func DrawCharRotated(display drivers.Displayer, font *Font, x int16, y int16, char rune, color color.RGBA, rotation Rotation) {
-	idx := uint16(0)
-	for _, rti := range font.RuneToIndex {
-		if rti.Rune == char {
-			idx = rti.Index
-			break
-		}
+	glyph, err := GetGlyph(font, char)
+	if err != nil {
+		// TODO
 	}
-
-	glyph := font.UGlyphs[idx]
 	bitmapOffset := 0
 	bitmap := glyph.Bitmaps[bitmapOffset]
 	bit := uint8(0)
@@ -97,16 +93,19 @@ func WriteLineRotated(display drivers.Displayer, font *Font, x int16, y int16, t
 	rotation = rotation % 4
 	w, h := display.Size()
 	l := len(text)
+	ox := x
 	for i := 0; i < l; i++ {
-		idx := uint16(0)
-		for _, rti := range font.RuneToIndex {
-			if rti.Rune == text[i] {
-				idx = rti.Index
-				break
-			}
+		if text[i] == 0x0A || text[i] == 0x0D {
+			/* CR or LF */
+			x = ox
+			y += int16(font.YAdvance) + 1
+			continue
 		}
 
-		glyph := font.UGlyphs[idx]
+		glyph, err := GetGlyph(font, text[i])
+		if err != nil {
+			// TODO
+		}
 		//if x+int16(glyph.XAdvance) >= 0 {
 		DrawCharRotated(display, font, x, y, text[i], color, rotation)
 		//}
@@ -149,7 +148,10 @@ func WriteLineColorsRotated(display drivers.Displayer, font *Font, x int16, y in
 	w, h := display.Size()
 	l := len(text)
 	for i := 0; i < l; i++ {
-		glyph := font.Glyphs[byte(text[i])-font.First]
+		glyph, err := GetGlyph(font, text[i])
+		if err != nil {
+			// TODO
+		}
 		//if x+int16(glyph.XAdvance) >= 0 {
 		DrawCharRotated(display, font, x, y, text[i], colors[c], rotation)
 		//}
@@ -179,16 +181,37 @@ func WriteLineColorsRotated(display drivers.Displayer, font *Font, x int16, y in
 
 func LineWidth(font *Font, text []rune) (innerWidth uint32, outboxWidth uint32) {
 	for i := range text {
-		glyph := font.Glyphs[byte(text[i])-font.First]
+		glyph, err := GetGlyph(font, text[i])
+		if err != nil {
+			// TODO
+		}
 		outboxWidth += uint32(glyph.XAdvance)
 	}
 	innerWidth = outboxWidth
 	// first glyph
-	glyph := font.Glyphs[byte(text[0])-font.First]
+	glyph, err := GetGlyph(font, text[0])
+	if err != nil {
+		// TODO
+	}
 	innerWidth -= uint32(glyph.XOffset)
 
 	// last glyph
-	glyph = font.Glyphs[byte(text[0])-font.First]
+	glyph, err = GetGlyph(font, text[len(text)-1])
+	if err != nil {
+		// TODO
+	}
 	innerWidth += -uint32(glyph.XAdvance) + uint32(glyph.XOffset) + uint32(glyph.Width)
 	return
+}
+
+func GetGlyph(font *Font, r rune) (Glyph, error) {
+	idx := uint16(0)
+	for _, rti := range font.RuneToIndex {
+		if rti.Rune == r {
+			idx = rti.Index
+			return font.Glyphs[idx], nil
+		}
+	}
+
+	return Glyph{}, fmt.Errorf("glyph not found")
 }
