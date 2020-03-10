@@ -16,20 +16,23 @@ const (
 type Rotation uint8
 
 type Glyph struct {
-	BitmapIndex uint16
-	Width       uint8
-	Height      uint8
-	XAdvance    uint8
-	XOffset     int8
-	YOffset     int8
+	Width    uint8
+	Height   uint8
+	XAdvance uint8
+	XOffset  int8
+	YOffset  int8
+	Bitmaps  []byte
+}
+
+type RuneToIndex struct {
+	Rune  rune
+	Index uint16
 }
 
 type Font struct {
-	Bitmaps  []byte
-	Glyphs   []Glyph
-	First    byte
-	Last     byte
-	YAdvance uint8
+	UGlyphs     []Glyph
+	RuneToIndex []RuneToIndex
+	YAdvance    uint8
 }
 
 // DrawChar sets a single char in the buffer of the display
@@ -39,12 +42,17 @@ func DrawChar(display drivers.Displayer, font *Font, x int16, y int16, char rune
 
 // DrawCharRotated sets a single char in the buffer of the display
 func DrawCharRotated(display drivers.Displayer, font *Font, x int16, y int16, char rune, color color.RGBA, rotation Rotation) {
-	if byte(char) < font.First || byte(char) > font.Last {
-		return
+	idx := uint16(0)
+	for _, rti := range font.RuneToIndex {
+		if rti.Rune == char {
+			idx = rti.Index
+			break
+		}
 	}
-	glyph := font.Glyphs[byte(char)-font.First]
-	bitmapOffset := glyph.BitmapIndex
-	bitmap := font.Bitmaps[bitmapOffset]
+
+	glyph := font.UGlyphs[idx]
+	bitmapOffset := 0
+	bitmap := glyph.Bitmaps[bitmapOffset]
 	bit := uint8(0)
 	for j := int16(0); j < int16(glyph.Height); j++ {
 		for i := int16(0); i < int16(glyph.Width); i++ {
@@ -65,9 +73,16 @@ func DrawCharRotated(display drivers.Displayer, font *Font, x int16, y int16, ch
 			bit++
 			if bit > 7 {
 				bitmapOffset++
-				bitmap = font.Bitmaps[bitmapOffset]
+				bitmap = glyph.Bitmaps[bitmapOffset]
 				bit = 0
 			}
+		}
+
+		if j < int16(glyph.Height)-1 {
+			// next line
+			bitmapOffset++
+			bitmap = glyph.Bitmaps[bitmapOffset]
+			bit = 0
 		}
 	}
 }
@@ -83,7 +98,15 @@ func WriteLineRotated(display drivers.Displayer, font *Font, x int16, y int16, t
 	w, h := display.Size()
 	l := len(text)
 	for i := 0; i < l; i++ {
-		glyph := font.Glyphs[byte(text[i])-font.First]
+		idx := uint16(0)
+		for _, rti := range font.RuneToIndex {
+			if rti.Rune == text[i] {
+				idx = rti.Index
+				break
+			}
+		}
+
+		glyph := font.UGlyphs[idx]
 		//if x+int16(glyph.XAdvance) >= 0 {
 		DrawCharRotated(display, font, x, y, text[i], color, rotation)
 		//}
