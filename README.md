@@ -2,6 +2,8 @@
 
 TinyUFont is a font/text package for TinyGo displays.  
 
+![](tinyufont.jpg)
+
 ## VS. github.com/tinygo-org/tinyfont
 
 * TinyGo font files can be created from BDF fonts (tinyufontgen)
