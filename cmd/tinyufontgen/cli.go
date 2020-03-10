@@ -33,7 +33,12 @@ func (c *cli) Run(args []string) error {
 	}
 	app.HelpFlag.Short('h')
 
+	pkgname := app.Flag("package", "package name").Default("main").String()
+	fontname := app.Flag("fontname", "font name").Default("TinyUFont").String()
+	isofont := app.Flag("ascii-font", "ascii font path (*.bdf)").ExistingFile()
+	font := app.Flag("font", "font path (*.bdf) (jisx0208 only)").ExistingFile()
 	str := app.Arg(`string`, `strings for font`).String()
+	output := app.Flag("output", "output path").String()
 
 	k, err := app.Parse(args[1:])
 	if err != nil {
@@ -43,13 +48,13 @@ func (c *cli) Run(args []string) error {
 	switch k {
 	default:
 		f := fontgen{
-			pkgname:  `ayu20gothic`,
-			fontname: `Ayu20gothic`,
-			isofont:  `..\pyportal-private\tinyufont\tinyufont\ayu20gothic\10x20grkm.bdf`,
-			font:     `..\pyportal-private\tinyufont\tinyufont\ayu20gothic\k20gm.bdf`,
+			pkgname:  *pkgname,
+			fontname: *fontname,
+			isofont:  *isofont,
+			font:     *font,
 		}
 
-		w, err := os.Create(`.\ayu20gothic\ayu20gothic.go`)
+		w, err := os.Create(*output)
 		if err != nil {
 			return nil
 		}

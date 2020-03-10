@@ -132,6 +132,8 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 	fmt.Fprintln(w, `import (`)
 	fmt.Fprintln(w, `	"github.com/sago35/tinyufont"`)
 	fmt.Fprintln(w, `)`)
+	fmt.Fprintln(w)
+
 	fontname := strings.ToUpper(f.fontname[0:1]) + f.fontname[1:]
 	fmt.Fprintf(w, "var %s = %T{\n", fontname, ufont)
 	fmt.Fprintf(w, "	Glyphs:%T{\n", ufont.Glyphs)
@@ -139,11 +141,14 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 		fmt.Fprintf(w, "		/* %c */ %#v,\n", ufont.RuneToIndex[i].Rune, g)
 	}
 	fmt.Fprintf(w, "	},\n")
+	fmt.Fprintln(w)
+
 	fmt.Fprintf(w, "	RuneToIndex:%T{\n", ufont.RuneToIndex)
 	for _, rti := range ufont.RuneToIndex {
 		fmt.Fprintf(w, "		/* %c */ %#v,\n", rti.Rune, rti)
 	}
 	fmt.Fprintf(w, "	},\n")
+	fmt.Fprintln(w)
 	fmt.Fprintf(w, "	YAdvance:%#v,\n", ufont.YAdvance)
 	fmt.Fprintf(w, "}\n")
 
