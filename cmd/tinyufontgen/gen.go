@@ -138,14 +138,22 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 	fmt.Fprintf(w, "var %s = %T{\n", fontname, ufont)
 	fmt.Fprintf(w, "	Glyphs:%T{\n", ufont.Glyphs)
 	for i, g := range ufont.Glyphs {
-		fmt.Fprintf(w, "		/* %c */ %#v,\n", ufont.RuneToIndex[i].Rune, g)
+		c := fmt.Sprintf("%c", ufont.RuneToIndex[i].Rune)
+		if ufont.RuneToIndex[i].Rune == 0 {
+			c = ""
+		}
+		fmt.Fprintf(w, "		/* %s */ %#v,\n", c, g)
 	}
 	fmt.Fprintf(w, "	},\n")
 	fmt.Fprintln(w)
 
 	fmt.Fprintf(w, "	RuneToIndex:%T{\n", ufont.RuneToIndex)
 	for _, rti := range ufont.RuneToIndex {
-		fmt.Fprintf(w, "		/* %c */ %#v,\n", rti.Rune, rti)
+		c := fmt.Sprintf("%c", rti.Rune)
+		if rti.Rune == 0 {
+			c = ""
+		}
+		fmt.Fprintf(w, "		/* %s */ %#v,\n", c, rti)
 	}
 	fmt.Fprintf(w, "	},\n")
 	fmt.Fprintln(w)
