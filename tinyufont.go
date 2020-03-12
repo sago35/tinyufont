@@ -69,17 +69,19 @@ func DrawCharRotated(display drivers.Displayer, font *Font, x int16, y int16, ch
 			bit++
 			if bit > 7 {
 				bitmapOffset++
-				bitmap = glyph.Bitmaps[bitmapOffset]
+				if bitmapOffset < len(glyph.Bitmaps) {
+					bitmap = glyph.Bitmaps[bitmapOffset]
+				}
 				bit = 0
 			}
 		}
 
-		if j < int16(glyph.Height)-1 {
-			// next line
-			bitmapOffset++
-			bitmap = glyph.Bitmaps[bitmapOffset]
-			bit = 0
-		}
+		//if j < int16(glyph.Height)-1 {
+		//	// next line
+		//	bitmapOffset++
+		//	bitmap = glyph.Bitmaps[bitmapOffset]
+		//	bit = 0
+		//}
 	}
 }
 
