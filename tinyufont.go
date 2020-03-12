@@ -94,11 +94,23 @@ func WriteLineRotated(display drivers.Displayer, font *Font, x int16, y int16, t
 	w, h := display.Size()
 	l := len(text)
 	ox := x
+	oy := y
 	for i := 0; i < l; i++ {
 		if text[i] == 0x0A || text[i] == 0x0D {
 			/* CR or LF */
-			x = ox
-			y += int16(font.YAdvance) + 1
+			if rotation == 0 {
+				x = ox
+				y += int16(font.YAdvance) + 1
+			} else if rotation == 1 {
+				x -= int16(font.YAdvance) + 1
+				y = oy
+			} else if rotation == 2 {
+				x = ox
+				y -= int16(font.YAdvance) + 1
+			} else {
+				x += int16(font.YAdvance) + 1
+				y = oy
+			}
 			continue
 		}
 
@@ -147,7 +159,26 @@ func WriteLineColorsRotated(display drivers.Displayer, font *Font, x int16, y in
 	c := uint16(0)
 	w, h := display.Size()
 	l := len(text)
+	ox := x
+	oy := y
 	for i := 0; i < l; i++ {
+		if text[i] == 0x0A || text[i] == 0x0D {
+			/* CR or LF */
+			if rotation == 0 {
+				x = ox
+				y += int16(font.YAdvance) + 1
+			} else if rotation == 1 {
+				x -= int16(font.YAdvance) + 1
+				y = oy
+			} else if rotation == 2 {
+				x = ox
+				y -= int16(font.YAdvance) + 1
+			} else {
+				x += int16(font.YAdvance) + 1
+				y = oy
+			}
+			continue
+		}
 		glyph, err := GetGlyph(font, text[i])
 		if err != nil {
 			// TODO
