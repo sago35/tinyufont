@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"sort"
 	"strings"
 
 	"github.com/sago35/go-jisx0208"
@@ -19,6 +20,8 @@ type fontgen struct {
 }
 
 func (f *fontgen) generate(w io.Writer, runes []rune) error {
+	runes = sortAndUniq(runes)
+
 	if len(f.isofont) == 0 {
 		return fmt.Errorf("length error (isofont)")
 	}
@@ -176,4 +179,18 @@ func readFont(p string) (*bdf.Font, error) {
 
 	return font, nil
 
+}
+
+func sortAndUniq(runes []rune) []rune {
+	sort.Slice(runes, func(i, j int) bool { return runes[i] < runes[j] })
+
+	ret := []rune{}
+	var prev rune
+	for _, r := range runes {
+		if prev != r {
+			ret = append(ret, r)
+		}
+		prev = r
+	}
+	return ret
 }
