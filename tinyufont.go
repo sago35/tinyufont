@@ -236,13 +236,22 @@ func LineWidth(font *Font, text []rune) (innerWidth uint32, outboxWidth uint32) 
 }
 
 func GetGlyph(font *Font, r rune) (Glyph, error) {
-	idx := uint16(0)
-	for _, rti := range font.RuneToIndex {
-		if rti.Rune == r {
-			idx = rti.Index
-			return font.Glyphs[idx], nil
+	s := 0
+	e := len(font.RuneToIndex) - 1
+
+	for s <= e {
+		m := (s + e) / 2
+
+		if font.RuneToIndex[m].Rune < r {
+			s = m + 1
+		} else {
+			e = m - 1
 		}
 	}
 
-	return Glyph{}, fmt.Errorf("glyph not found")
+	if s == len(font.RuneToIndex) || font.RuneToIndex[s].Rune != r {
+		return Glyph{}, fmt.Errorf("glyph not found")
+	}
+
+	return font.Glyphs[s], nil
 }
