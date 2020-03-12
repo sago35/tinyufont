@@ -43,8 +43,8 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 
 		bmp := []byte{}
 		bitpos := 0
+		b := byte(0)
 		for y := img.Rect.Min.Y; y < img.Rect.Max.Y; y++ {
-			b := byte(0)
 			for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
 				r, _, _, _ := img.At(x, y).RGBA()
 				if r != 0 {
@@ -59,10 +59,10 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 				}
 			}
 
-			if bitpos != 0 {
-				bitpos = 0
-				bmp = append(bmp, b)
-			}
+		}
+		if bitpos != 0 {
+			bitpos = 0
+			bmp = append(bmp, b)
 		}
 
 		g := tinyufont.Glyph{
@@ -93,8 +93,8 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 
 				bmp := []byte{}
 				bitpos := 0
+				b := byte(0)
 				for y := img.Rect.Min.Y; y < img.Rect.Max.Y; y++ {
-					b := byte(0)
 					for x := img.Rect.Min.X; x < img.Rect.Max.X; x++ {
 						r, _, _, _ := img.At(x, y).RGBA()
 						if r != 0 {
@@ -107,10 +107,10 @@ func (f *fontgen) generate(w io.Writer, runes []rune) error {
 							b = 0
 						}
 					}
-					if bitpos != 0 {
-						bitpos = 0
-						bmp = append(bmp, b)
-					}
+				}
+				if bitpos != 0 {
+					bitpos = 0
+					bmp = append(bmp, b)
 				}
 
 				g := tinyufont.Glyph{
